@@ -9,7 +9,7 @@ internal static class Program
     {
         Log.WriteInConsole();
         var window = new Window("HelloWorld", 700, 1000);
-        window.Start();
+        
         WindowsManager.RunApplication();
     }
 }

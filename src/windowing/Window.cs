@@ -1,4 +1,5 @@
-﻿using Silk.NET.GLFW;
+﻿using gltest.render;
+using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 
 namespace gltest.windowing;
@@ -8,8 +9,10 @@ public class Window
     private readonly Glfw _glfw;
     private readonly GL _gl;
     private readonly unsafe WindowHandle* _window;
-    private bool _alive;
-    public int MaxFramesPerSecond { get; set; }
+    private WindowChild _child;
+    public unsafe delegate void RenderCallback(Glfw glfw, GL gl, WindowHandle* window);
+
+    internal event RenderCallback? OnRender;
     
     /// <summary>
     /// Create a new window
@@ -31,36 +34,30 @@ public class Window
             });
         }
         _gl = WindowsManager.GetGl();
-        MaxFramesPerSecond = 24;
-        _alive = true;
-    }
-
-    public void Start()
-    {
-        new Thread(new ThreadStart((() =>
-        {
-            while (_alive)
-            {
-                Thread.Sleep(1000/MaxFramesPerSecond);
-                Render();
-            }
-        }))).Start();
+        _child = new Scene();
+        _child.Enrole(this);
     }
 
     public unsafe void Kill()
     {
-        _alive = false;
+        _child.Dismiss();
         WindowsManager.UnregisterWindow(this);
         _glfw.DestroyWindow(_window);
     }
-    
-    private unsafe void Render()
+
+    public void SetChild(WindowChild child)
     {
-        lock (_gl)
+        _child.Dismiss();
+        _child = child;
+        _child.Enrole(this);
+    }
+    
+    internal unsafe void RequestRenderContext()
+    {
+        lock(_gl)
         {
-            _glfw.MakeContextCurrent(_window);
-            _gl.Clear(ClearBufferMask.ColorBufferBit);
-            _glfw.SwapBuffers(_window);
+            OnRender?.Invoke(_glfw, _gl, _window);
         }
     }
+    
 }

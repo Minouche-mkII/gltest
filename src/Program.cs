@@ -1,10 +1,16 @@
-﻿namespace gltest
+﻿using gltest.Utils;
+using gltest.windowing;
+
+namespace gltest;
+
+internal static class Program
 {
-    internal static class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            new Window("gltest", 1000, 800).Start();
-        }
+        Log.WriteInConsole();
+        var window = new Window("HelloWorld", 700, 1000);
+        window.Start();
+        WindowsManager.RunApplication();
     }
 }
+

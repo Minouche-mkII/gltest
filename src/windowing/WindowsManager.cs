@@ -39,7 +39,7 @@ public static class WindowsManager
         System.Environment.Exit(0);
     }
 
-    public static void StopApplication()
+    public static void EndApplication()
     {
         _running = false;
     }

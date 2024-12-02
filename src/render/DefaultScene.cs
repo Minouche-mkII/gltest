@@ -5,14 +5,14 @@ using Silk.NET.OpenGL;
 
 namespace gltest.render;
 
-public class Scene : WindowChild
+public class DefaultScene : windowing.DefaultScene
 {
     public int MaxFramesPerSecond { get; set; }
     private bool _alive;
     private readonly Thread _renderThread;
     public bool Paused;
     
-    public Scene() : base()
+    public DefaultScene() : base()
     {
         MaxFramesPerSecond = 24;
         _alive = false;

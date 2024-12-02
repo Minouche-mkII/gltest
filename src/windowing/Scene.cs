@@ -5,7 +5,7 @@ using Silk.NET.OpenGL;
 
 namespace gltest.windowing;
 
-public abstract class WindowChild()
+public abstract class DefaultScene()
 {
     public Window? ParentWindow { get; private set; }
     private Window.RenderCallback? _renderCallBack;

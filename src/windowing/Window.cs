@@ -9,7 +9,7 @@ public class Window
     private readonly Glfw _glfw;
     private readonly GL _gl;
     private readonly unsafe WindowHandle* _window;
-    private WindowChild _child;
+    private DefaultScene _child;
     public unsafe delegate void RenderCallback(Glfw glfw, GL gl, WindowHandle* window);
 
     internal event RenderCallback? OnRender;
@@ -34,7 +34,7 @@ public class Window
             });
         }
         _gl = WindowsManager.GetGl();
-        _child = new Scene();
+        _child = new render.DefaultScene();
         _child.Enrole(this);
     }
 
@@ -45,7 +45,7 @@ public class Window
         _glfw.DestroyWindow(_window);
     }
 
-    public void SetChild(WindowChild child)
+    public void SetChild(DefaultScene child)
     {
         _child.Dismiss();
         _child = child;

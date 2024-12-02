@@ -5,31 +5,39 @@ using Silk.NET.OpenGL;
 
 namespace gltest.render;
 
-public class DefaultScene : windowing.DefaultScene
+public class DefaultScene : Scene
 {
-    public int MaxFramesPerSecond { get; set; }
-    private bool _alive;
-    private readonly Thread _renderThread;
-    public bool Paused;
-    
-    public DefaultScene() : base()
+    private const int DefaultMaxFramePerSecond = 24;
+    public int MaxFramesPerSecond
     {
-        MaxFramesPerSecond = 24;
-        _alive = false;
-        _renderThread = new Thread(new ThreadStart((() =>
+        get => _renderThread.MaxCallPerSeconds;
+        set => _renderThread.MaxCallPerSeconds = value;
+    }
+    private readonly RefreshThread _renderThread;
+
+    public DefaultScene(int maxFramesPerSecond)
+    {
+        _renderThread = new RefreshThread(maxFramesPerSecond, (() =>
         {
-            while (_alive)
+            unsafe
             {
-                Thread.Sleep(1000 / MaxFramesPerSecond);
-                RequestRenderContext();
+                RequestRenderContext(Render);
             }
-        })));
-        unsafe
-        {
-            OnRender(Render);
-        }
+        }));
     }
     
+    private unsafe void Render(Glfw glfw, GL gl, WindowHandle* windowHandle)
+    {
+        
+    }
+
+    private void Init()
+    {
+        
+    }
+
+    public DefaultScene() : this(DefaultMaxFramePerSecond) { }
+
     public void Start()
     {
         if (ParentWindow == null)
@@ -37,23 +45,33 @@ public class DefaultScene : windowing.DefaultScene
             Log.Warning("Can't start a Scene whithout parent");
             return;
         }
-        _alive = true;
-        _renderThread.Start();
+        try
+        {
+            _renderThread.Start();
+        }
+        catch (ThreadStateException ex)
+        {
+            Log.Warning("The scene has already been started");
+        }
     }
 
-    public void Stop()
+    public void Pause()
     {
-        _alive = false;
+        _renderThread.Pause();
     }
-    
 
-    private unsafe void Render(Glfw glfw, GL gl, WindowHandle* windowHandle)
+    public void Resume()
     {
-        Console.WriteLine("Appelé");
+        _renderThread.Resume();
     }
 
     protected override void OnDissmissed()
     {
-        Stop();
+        _renderThread.Pause();
+    }
+
+    protected override void WhenEnroled()
+    {
+        Init();
     }
 }

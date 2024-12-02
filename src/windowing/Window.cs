@@ -9,16 +9,14 @@ public class Window
     private readonly Glfw _glfw;
     private readonly GL _gl;
     private readonly unsafe WindowHandle* _window;
-    private DefaultScene _child;
+    public Scene Scene {get; private set;}
     public unsafe delegate void RenderCallback(Glfw glfw, GL gl, WindowHandle* window);
-
-    internal event RenderCallback? OnRender;
     
     /// <summary>
     /// Create a new window
     /// </summary>
     /// <exception cref="GlfwException">Thrown if GLFW didn't manage to initialize</exception>
-    public Window(string title, int height, int width)
+    public Window(string title, int height, int width, Scene scene)
     {
         _glfw = WindowsManager.RegisterNewlyCreatedWindowAndGetApi(this);
         unsafe
@@ -34,29 +32,29 @@ public class Window
             });
         }
         _gl = WindowsManager.GetGl();
-        _child = new render.DefaultScene();
-        _child.Enrole(this);
+        Scene = scene;
+        Scene.Enrole(this);
     }
 
     public unsafe void Kill()
     {
-        _child.Dismiss();
+        Scene.Dismiss();
         WindowsManager.UnregisterWindow(this);
         _glfw.DestroyWindow(_window);
     }
 
-    public void SetChild(DefaultScene child)
+    public void SetScene(Scene child)
     {
-        _child.Dismiss();
-        _child = child;
-        _child.Enrole(this);
+        Scene.Dismiss();
+        Scene = child;
+        Scene.Enrole(this);
     }
     
-    internal unsafe void RequestRenderContext()
+    internal unsafe void RequestRenderContext(RenderCallback callback)
     {
         lock(_gl)
         {
-            OnRender?.Invoke(_glfw, _gl, _window);
+            callback(_glfw, _gl, _window);
         }
     }
     

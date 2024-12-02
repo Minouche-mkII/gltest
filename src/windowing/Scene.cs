@@ -5,33 +5,28 @@ using Silk.NET.OpenGL;
 
 namespace gltest.windowing;
 
-public abstract class DefaultScene()
+public abstract class Scene()
 {
     public Window? ParentWindow { get; private set; }
-    private Window.RenderCallback? _renderCallBack;
 
     internal void Enrole(Window? parentWindow)
     {
         ParentWindow = parentWindow;
-        ParentWindow!.OnRender += _renderCallBack;
+        WhenEnroled();
     }
     internal void Dismiss()
     {
-        if (ParentWindow != null) ParentWindow.OnRender -= _renderCallBack;
         ParentWindow = null;
         OnDissmissed();
     }
     
     protected abstract void OnDissmissed();
 
-    protected void RequestRenderContext()
-    {
-        ParentWindow?.RequestRenderContext();
-    }
+    protected abstract void WhenEnroled();
 
-    protected void OnRender(Window.RenderCallback callback)
+    protected void RequestRenderContext(Window.RenderCallback callback)
     {
-        if (ParentWindow != null) ParentWindow.OnRender += callback;
-        _renderCallBack = callback;
+        ParentWindow?.RequestRenderContext(callback);
     }
+    
 }

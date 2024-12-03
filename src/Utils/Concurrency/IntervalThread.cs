@@ -1,15 +1,20 @@
+using gltest.Utils.Concurrency;
+using gltest.Utils.Logging;
+
 namespace gltest.Utils;
 
 public class IntervalThread
 {
     public int Interval { get; set; }
     public bool IsRunning { get; set; }
+    private readonly AsyncCallbackQueue _ponctualInstructions;
     private bool _continue;
     private readonly Thread _thread;
     private string? _slowedLogEntry;
 
     public IntervalThread(int interval, Action callBack)
     {
+        _ponctualInstructions = new AsyncCallbackQueue();
         Interval = interval;
         _continue = true;
         IsRunning = true;
@@ -27,6 +32,7 @@ public class IntervalThread
                     {
                         if(_slowedLogEntry != null) Log.Warning(_slowedLogEntry);
                     }
+                    _ponctualInstructions.ExecuteWaitingInstructions();
                     callBack();
                 }
             }
@@ -37,20 +43,25 @@ public class IntervalThread
     {
         _slowedLogEntry = entry;
     }
+
+    public void ExecutePonctualInstructions(Action instructions)
+    {
+        _ponctualInstructions.AddInstructionsToQueue(instructions);
+    }
     
     public void Start()
     {
         _thread.Start();
     }
+    
+    public void End()
+    {
+        _continue = false;
+    }
 
     public void Pause()
     {
         IsRunning = false;
-    }
-
-    public void End()
-    {
-        _continue = false;
     }
 
     public void Resume()

@@ -1,4 +1,4 @@
-﻿namespace gltest.render;
+﻿namespace gltest.Render;
 
 public class Render
 {

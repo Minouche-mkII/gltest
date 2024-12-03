@@ -1,8 +1,10 @@
 ﻿using gltest.Utils;
+using gltest.Utils.Concurrency;
+using gltest.Utils.Logging;
 using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 
-namespace gltest.windowing;
+namespace gltest.Windowing;
 
 public static class WindowsManager
 {
@@ -14,8 +16,8 @@ public static class WindowsManager
     private static Glfw? _glfw;
     private static GL? _gl;
     private static bool _running = false;
-    
-    private static readonly List<Task> MainThreadTaskCallbacksQueue = [];
+
+    private static readonly AsyncCallbackQueue MainThreadTaskQueue = new AsyncCallbackQueue();
 
     /// <summary>
     /// Represent the mainWindow of the application, by default, the application will stop if the main
@@ -53,11 +55,7 @@ public static class WindowsManager
     private static void Manage()
     {
         _glfw?.PollEvents();
-        foreach(var callback in MainThreadTaskCallbacksQueue.ToList())
-        {
-            callback.Start();
-            MainThreadTaskCallbacksQueue.Remove(callback);
-        }
+        MainThreadTaskQueue.ExecuteWaitingInstructions();
     }
 
     private static void CloseGlfwAndFinish()
@@ -74,9 +72,9 @@ public static class WindowsManager
         _running = false;
     }
 
-    public static void RequestCallbackForMainThread(Task callbak)
+    public static void RequestCallbackForMainThread(Action callbak)
     {
-        MainThreadTaskCallbacksQueue.Add(callbak);
+        MainThreadTaskQueue.AddInstructionsToQueue(callbak);
     }
     
     internal static Glfw RegisterNewlyCreatedWindowAndGetApi(Window window)
@@ -136,6 +134,6 @@ public static class WindowsManager
         {
             Log.Error($"GLFW {error} , {description}");
         });
-        _gl = GL.GetApi(_glfw.GetProcAddress);
+        _gl = GL.GetApi((name) => _glfw.GetProcAddress(name));
     }
 }

@@ -1,6 +1,7 @@
-﻿using gltest.render;
+﻿using gltest.Render;
 using gltest.Utils;
-using gltest.windowing;
+using gltest.Utils.Logging;
+using gltest.Windowing;
 
 namespace gltest;
 
@@ -10,8 +11,11 @@ internal static class Program
     {
         Log.WriteInConsole();
         var mainScene = new DefaultScene();
-        var window = new Window("HelloWorld", 700, 1000, mainScene);
+        var scene2 = new DefaultScene();
+        var window = new Window("HelloWorld", mainScene, 700, 1000);
+        var window2 = new Window("HelloWorld2", scene2, 500, 500);
         mainScene.Start();
+        scene2.Start();
         WindowsManager.RunApplication();
     }
 }

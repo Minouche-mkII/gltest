@@ -1,4 +1,4 @@
-﻿namespace gltest.Utils;
+﻿namespace gltest.Utils.Logging;
 
 public static class Log
 {

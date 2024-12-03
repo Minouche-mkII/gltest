@@ -11,9 +11,7 @@ internal static class Program
         Log.WriteInConsole();
         var mainScene = new DefaultScene();
         var window = new Window("HelloWorld", 700, 1000, mainScene);
-        
         mainScene.Start();
-        
         WindowsManager.RunApplication();
     }
 }

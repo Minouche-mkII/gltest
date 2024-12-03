@@ -8,21 +8,36 @@ public static class WindowsManager
 {
     public static bool ShutOnMainWindowClosed { get; set; } = true;
     public static bool ShutOnAllWindowsClosed { get; set; } = true;
+    private static Window? _mainWindow;
     
     private static readonly List<Window> ActivesWindows = [];
-    private static Window? _mainWindow;
     private static Glfw? _glfw;
     private static GL? _gl;
     private static bool _running = false;
     
+    private static readonly List<Task> MainThreadTaskCallbacksQueue = [];
+
+    /// <summary>
+    /// Represent the mainWindow of the application, by default, the application will stop if the main
+    /// window is closed. The first window will automaticly be assigned to be the main window
+    /// </summary>
+    /// <exception cref="InvalidOperationException"> will be thrown if there is no main window.
+    /// </exception>
+    /// <remarks>
+    /// error can happen only if :
+    /// <list type="bullet">
+    /// <item>no window have been created</item>
+    /// <item>if main window was destroyed with ShutOnMainWindowClosed set to false</item>
+    /// </list>
+    /// </remarks>>
+    public static Window MainWindow
+    {
+        get => _mainWindow ?? throw new InvalidOperationException("no window is the main Window");
+        set => _mainWindow = value;
+    }
     public static Window[] GetWindows()
     {
         return ActivesWindows.ToArray();
-    }
-
-    public static Window? GetMainWindow()
-    {
-        return _mainWindow;
     }
 
     public static void RunApplication()
@@ -30,23 +45,38 @@ public static class WindowsManager
         _running = true;
         while (_running)
         {
-            _glfw?.PollEvents();
+            Manage();
         }
+        CloseGlfwAndFinish();
+    }
+
+    private static void Manage()
+    {
+        _glfw?.PollEvents();
+        foreach(var callback in MainThreadTaskCallbacksQueue.ToList())
+        {
+            callback.Start();
+            MainThreadTaskCallbacksQueue.Remove(callback);
+        }
+    }
+
+    private static void CloseGlfwAndFinish()
+    {
         _glfw?.Terminate();
         _glfw = null;
         Log.Info("GLFW terminated");
         Log.Info("Application terminated");
         System.Environment.Exit(0);
     }
-
+    
     public static void EndApplication()
     {
         _running = false;
     }
 
-    public static void SetMainWindow(Window window)
+    public static void RequestCallbackForMainThread(Task callbak)
     {
-        _mainWindow = window;
+        MainThreadTaskCallbacksQueue.Add(callbak);
     }
     
     internal static Glfw RegisterNewlyCreatedWindowAndGetApi(Window window)
@@ -57,7 +87,7 @@ public static class WindowsManager
         }
         if (ActivesWindows.Count == 0)
         {
-            SetMainWindow(window);
+            _mainWindow = window;
         }
         ActivesWindows.Add(window);
         return _glfw!;

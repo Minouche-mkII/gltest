@@ -24,7 +24,7 @@ public abstract class Scene()
 
     protected abstract void WhenEnroled();
 
-    protected void RequestRenderContext(Window.RenderCallback callback)
+    protected void RequestRenderContext(RenderCallback callback)
     {
         ParentWindow?.RequestRenderContext(callback);
     }

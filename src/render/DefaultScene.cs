@@ -28,12 +28,16 @@ public class DefaultScene : Scene
     
     private unsafe void Render(Glfw glfw, GL gl, WindowHandle* windowHandle)
     {
-        
+        gl.Clear(ClearBufferMask.ColorBufferBit);
+        glfw.SwapBuffers(windowHandle);
     }
 
-    private void Init()
+    private unsafe void Init()
     {
-        
+        RequestRenderContext((glfw, gl, windowHandle) =>
+        {
+            gl.ClearColor(0.8f, 0.1f, 0.15f, 1.0f);
+        });
     }
 
     public DefaultScene() : this(DefaultMaxFramePerSecond) { }
@@ -62,6 +66,11 @@ public class DefaultScene : Scene
 
     public void Resume()
     {
+        if (ParentWindow == null)
+        {
+            Log.Warning("Can't start a Scene whithout parent");
+            return;
+        }
         _renderThread.Resume();
     }
 

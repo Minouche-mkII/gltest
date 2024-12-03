@@ -16,5 +16,5 @@ A chaque actualisation de rendu, OpenGL dessine sur le Back Buffer en affichant 
 Les deux buffers sont alternés à chaque nouveau rendu.
 
 # rendering pipeline
-- Vertex shader
-- Fragment shader
+- Vertex shader : points
+- Fragment shader : couleur

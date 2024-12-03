@@ -21,7 +21,7 @@ public class DefaultScene : Scene
 
     public DefaultScene(int maxFramesPerSecond = 24)
     {
-        _renderThread = new RefreshThread(maxFramesPerSecond, Render, Init);
+        _renderThread = new RefreshThread(maxFramesPerSecond, Render);
     }
     
     private void Render()

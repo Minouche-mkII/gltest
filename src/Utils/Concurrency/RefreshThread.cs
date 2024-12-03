@@ -1,6 +1,6 @@
 namespace gltest.Utils.Concurrency;
 
-public class RefreshThread(int maxCallPerSeconds, Action callBack, Action? preliminaryInstruction = null)
+public class RefreshThread(int maxCallPerSeconds, Action callBack)
     : IntervalThread(1000 / maxCallPerSeconds, callBack)
 {
     private int _maxCallPerSeconds = maxCallPerSeconds;

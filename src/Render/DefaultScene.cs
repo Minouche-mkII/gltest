@@ -1,4 +1,5 @@
-﻿using gltest.Utils;
+﻿using gltest.Render.Renderers;
+using gltest.Utils;
 using gltest.Utils.Concurrency;
 using gltest.Utils.Logging;
 using gltest.Windowing;
@@ -12,6 +13,7 @@ public class DefaultScene : Scene
     private Glfw? _glfw;
     private GL? _gl;
     private unsafe WindowHandle* _windowHandle;
+    private IRenderer _renderer;
     public int MaxFramesPerSecond
     {
         get => _renderThread.MaxCallPerSeconds;
@@ -22,11 +24,14 @@ public class DefaultScene : Scene
     public DefaultScene(int maxFramesPerSecond = 24)
     {
         _renderThread = new RefreshThread(maxFramesPerSecond, Render);
+        _renderer = new TriangleRenderer();
     }
     
     private void Render()
     {
         _gl!.Clear(ClearBufferMask.ColorBufferBit);
+        _renderer!.Draw(_gl);
+        
         unsafe
         {
             _glfw!.SwapBuffers(_windowHandle);
@@ -38,6 +43,7 @@ public class DefaultScene : Scene
     {
         _glfw!.MakeContextCurrent(_windowHandle);
         _gl!.ClearColor(0.05f, 0.07f, 0.1f, 1.0f);
+        _renderer.Load(_gl);
     }
 
     protected override unsafe void WhenEnroled(Glfw glfw, GL gl, WindowHandle* windowHandle)
@@ -71,6 +77,12 @@ public class DefaultScene : Scene
         {
             Log.Warning("The scene has already been started");
         }
+    }
+
+    public void End()
+    {
+        _renderThread.End();
+        _renderer.UnLoad(_gl!);
     }
 
     public void Pause()

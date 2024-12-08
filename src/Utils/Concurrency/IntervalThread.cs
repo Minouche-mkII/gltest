@@ -20,20 +20,21 @@ public class IntervalThread
         IsRunning = true;
         _thread = new Thread(() =>
         {
+            var lastInterval =  DateTimeOffset.Now.ToUnixTimeMilliseconds();
             while (_continue)
             {
-                if (IsRunning)
+                if (!IsRunning) continue;
+                _ponctualInstructions.ExecuteWaitingInstructions();
+                callBack();
+                    
+                try
                 {
-                    try
-                    {
-                        Thread.Sleep(Interval);
-                    }
-                    catch (ArgumentOutOfRangeException ex)
-                    {
-                        if(_slowedLogEntry != null) Log.Warning(_slowedLogEntry);
-                    }
-                    _ponctualInstructions.ExecuteWaitingInstructions();
-                    callBack();
+                    var timeSinceLastInterval = DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastInterval;
+                    Thread.Sleep((int)(Interval-timeSinceLastInterval));
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    if(_slowedLogEntry != null) Log.Warning(_slowedLogEntry);
                 }
             }
         });

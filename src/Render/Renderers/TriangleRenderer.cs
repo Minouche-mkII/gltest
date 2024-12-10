@@ -48,8 +48,8 @@ public class TriangleRenderer : IRenderer
         _shaderProgram = gl.CreateProgram();
         var vertexShader = gl.CreateShader(ShaderType.VertexShader);
         var fragmentShader = gl.CreateShader(ShaderType.FragmentShader);
-        gl.ShaderSource(vertexShader, FileReader.ReadAllText(@"Shaders/default.vert"));
-        gl.ShaderSource(fragmentShader, FileReader.ReadAllText(@"Shaders/default.frag"));
+        gl.ShaderSource(vertexShader, EmbededResourceLoader.ReadAllText(@"gltest.src.Render.Shaders.Default.vert"));
+        gl.ShaderSource(fragmentShader, EmbededResourceLoader.ReadAllText(@"gltest.src.Render.Shaders.Default.frag"));
         gl.CompileShader(vertexShader);
         gl.CompileShader(fragmentShader);
         

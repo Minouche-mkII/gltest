@@ -42,7 +42,7 @@ public class DefaultScene : Scene
     private unsafe void Init()
     {
         _glfw!.MakeContextCurrent(_windowHandle);
-        _gl!.ClearColor(0.05f, 0.07f, 0.1f, 1.0f);
+        _gl!.ClearColor(0.05f, 0.07f, 0.13f, 1.0f);
         _renderer.Load(_gl);
     }
 

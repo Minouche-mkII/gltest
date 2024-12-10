@@ -13,4 +13,11 @@
       <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="src\Render\Shaders\Default.frag" />
+      <EmbeddedResource Include="src\Render\Shaders\Default.frag" />
+      <None Remove="src\Render\Shaders\Default.vert" />
+      <EmbeddedResource Include="src\Render\Shaders\Default.vert" />
+    </ItemGroup>
+
 </Project>
